@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Contacts</h2>
+<ul id="list"></ul>
+
+<script>
+async function load() {
+  const list = document.getElementById('list');
+
+  const res = await fetch('/api/contacts', {
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  });
+
+  const data = await res.json();
+
+  list.innerHTML = "";
+
+  data.forEach(c => {
+    const li = document.createElement('li');
+    li.innerText = c.name + ' - ' + c.phone;
+    list.appendChild(li);
+  });
+}
+
+load();
+</script>
+
+</body>
+</html>
