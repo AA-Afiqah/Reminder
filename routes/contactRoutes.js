@@ -124,14 +124,43 @@ router.get('/contacts', verifyToken, async (req, res) => {
   }
 });
 
-// Test webhook: Send POST with unique contact data
-router.post('/webhook-test', async (req, res) => {
+// Test webhook: Send POST with unique contact data for the logged-in user
+router.post('/webhook-test', verifyToken, async (req, res) => {
   try {
-    // Get first contact as example
-    const snap = await admin.firestore()
-      .collectionGroup('contacts')
-      .limit(1)
+    const uid = req.uid;
+
+    const userDoc = await admin.firestore()
+      .collection('users')
+      .doc(uid)
       .get();
+
+    if (!userDoc.exists) {
+      return res.status(403).json({ error: 'User not registered in Firestore users collection' });
+    }
+
+    const userData = userDoc.data();
+    const role = userData.role;
+    const clientId = userData.clientId;
+
+    let snap;
+
+    if (role === 'admin') {
+      snap = await admin.firestore()
+        .collectionGroup('contacts')
+        .limit(1)
+        .get();
+    } else {
+      if (!clientId) {
+        return res.status(400).json({ error: 'clientId missing for user' });
+      }
+
+      snap = await admin.firestore()
+        .collection('clients')
+        .doc(clientId)
+        .collection('contacts')
+        .limit(1)
+        .get();
+    }
 
     if (snap.empty) {
       return res.status(404).json({ error: 'No contacts found' });
@@ -139,7 +168,6 @@ router.post('/webhook-test', async (req, res) => {
 
     const contact = { id: snap.docs[0].id, ...snap.docs[0].data() };
 
-    // Replace with your test webhook URL (e.g., from webhook.site)
     const webhookUrl = 'https://api.seampify.com/api/webhooks/dynamic-webhook/6a00b8e3b0aa4c09fc3c89f8';
 
     const response = await fetch(webhookUrl, {
