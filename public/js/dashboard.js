@@ -2,12 +2,14 @@ import { auth } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 document.getElementById('loadButton').addEventListener('click', loadData);
+document.getElementById('webhookButton').addEventListener('click', triggerWebhook);
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("UID:", user.uid);
     loadClientName(); // Load client name
     loadData(); // Load data
+    triggerWebhook(); // Auto-trigger webhook on login
   }
 });
 async function loadClientName() {
@@ -76,4 +78,32 @@ async function loadData() {
     `;
     tableBody.appendChild(row);
   });
+}
+
+async function triggerWebhook() {
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    console.log('No token for webhook');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/webhook-test', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    });
+
+    if (!res.ok) {
+      console.error('Webhook error:', res.status);
+      return;
+    }
+
+    const data = await res.json();
+    console.log('Webhook sent:', data);
+  } catch (err) {
+    console.error('Webhook error:', err);
+  }
 }
