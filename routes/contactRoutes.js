@@ -18,11 +18,14 @@ async function verifyToken(req, res, next) {
 }
 
 // get client name
-router.get('/client-info', async (req, res) => {
+async function sendClientInfo(req, res) {
   try {
-    const token = req.headers.authorization.split('Bearer ')[1];
-    const decoded = await admin.auth().verifyIdToken(token);
+    const token = req.headers.authorization?.split('Bearer ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
 
+    const decoded = await admin.auth().verifyIdToken(token);
     const uid = decoded.uid;
 
     const userDoc = await admin.firestore()
@@ -31,7 +34,7 @@ router.get('/client-info', async (req, res) => {
       .get();
 
     if (!userDoc.exists) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const { clientId } = userDoc.data();
@@ -41,13 +44,20 @@ router.get('/client-info', async (req, res) => {
       .doc(clientId)
       .get();
 
+    if (!clientDoc.exists) {
+      return res.status(404).json({ error: 'Client document not found' });
+    }
+
     return res.json(clientDoc.data());
 
   } catch (err) {
-    console.error(err);
+    console.error('client-info error:', err);
     res.status(500).json({ error: err.message });
   }
-});
+}
+
+router.get('/client-info', sendClientInfo);
+router.get('/clients-info', sendClientInfo);
 
 //get contacts details
 router.get('/contacts', verifyToken, async (req, res) => {
@@ -85,7 +95,7 @@ router.get('/contacts', verifyToken, async (req, res) => {
 
       snap = await admin.firestore()
         .collection('clients')
-        .doc('clientId')
+        .doc(clientId)
         .collection('contacts')
         .get();
     }

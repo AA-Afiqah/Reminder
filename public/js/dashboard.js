@@ -12,12 +12,25 @@ onAuthStateChanged(auth, (user) => {
 });
 async function loadClientName() {
   const token = localStorage.getItem('token');
+  //console.log('loadClientName token:', token);
 
-  const res = await fetch('/api/clients', {
+  if (!token) {
+    alert('You are not authenticated. Please log in.');
+    return;
+  }
+
+  const res = await fetch('/api/client-info', {
     headers: {
       Authorization: 'Bearer ' + token
     }
   });
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('client-info error', res.status, text);
+    alert(`Failed to load client info: ${res.status}`);
+    return;
+  }
 
   const data = await res.json();
 
@@ -39,6 +52,8 @@ async function loadData() {
   });
 
   if (!res.ok) {
+    const text = await res.text();
+    console.error('Error loading contacts:', res.status, text);
     alert(`Failed to load contacts: ${res.status}`);
     return;
   }

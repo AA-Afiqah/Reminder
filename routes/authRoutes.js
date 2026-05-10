@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const admin = require('../public/js/firebase');
+const admin = require('../lib/firebase-admin');
 
 /**
  * LOGIN VERIFY (Google Firebase ID Token)
