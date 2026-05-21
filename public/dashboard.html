@@ -2,6 +2,32 @@
 <html>
 <head>
   <title>Dashboard</title>
+  <style>
+    #uploadSection.hidden {
+      display: none;
+    }
+    #dropZone {
+      border: 2px dashed #999;
+      padding: 24px;
+      text-align: center;
+      margin-top: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+    #dropZone.hover {
+      background: #f5f5f5;
+    }
+    #tagsContainer {
+      margin-top: 8px;
+      min-height: 24px;
+    }
+    #selectedFileName {
+      margin-top: 8px;
+      display: block;
+      font-size: 0.95rem;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
 <h2 id="welcomeText">Welcome back...</h2>
@@ -9,6 +35,37 @@
 
 <button id="loadButton">Load Data</button>
 <button id="webhookButton">Send Webhook</button>
+<button id="uploadContactsButton" type="button">Upload Contacts</button>
+
+<div id="uploadSection" class="hidden">
+  <h3>Import Contacts By CSV</h3>
+
+  <label>Phone number has country code?</label>
+  <input type="radio" name="cc" value="yes"> Yes
+  <input type="radio" name="cc" value="no" checked> No
+
+  <br/><br/>
+
+  <label for="countryCode">Country Code</label>
+  <select id="countryCode">
+    <option value="60">Malaysia (+60)</option>
+  </select>
+
+  <br/><br/>
+
+  <label for="tagInput">Add Tags</label>
+  <input type="text" id="tagInput" placeholder="Enter tag">
+  <button type="button" id="addTagButton">Add</button>
+  <div id="tagsContainer">No tags added</div>
+
+  <div id="dropZone">
+    Drag and drop CSV file here, or click to select
+  </div>
+  <input type="file" id="importFileInput" accept=".csv" hidden />
+  <div id="selectedFileName">No file selected</div>
+
+  <button type="button" id="uploadCSVButton">Upload</button>
+</div>
 
 <table border="1" width="100%">
   <thead>

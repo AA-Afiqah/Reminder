@@ -2,12 +2,14 @@ const express = require('express');
 const app = express();
 
 const contactRoutes = require('./routes/contactRoutes');
+const importRoutes = require('./routes/importRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 app.use(express.json());
 
 // API routes
 app.use('/api', contactRoutes);
+app.use('/api', importRoutes);
 app.use('/api', adminRoutes);
 
 // Static frontend
