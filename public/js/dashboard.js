@@ -46,7 +46,7 @@ onAuthStateChanged(auth, (user) => {
     console.log("UID:", user.uid);
     loadClientName(); // Load client name
     loadData(); // Load data
-    triggerWebhook(); // Auto-trigger webhook on login
+    //triggerWebhook(); // Auto-trigger webhook on login
   }
 });
 async function loadClientName() {
